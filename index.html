@@ -1,1 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QR Sheet — Material 3</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Mono&family=Roboto:wght@300;400;500&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0&display=swap" rel="stylesheet"/>
+<!-- Reliable qrcode-generator lib: exposes global qrcode() -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<style>
+/* ════════════ M3 Teal Tokens ════════════ */
+:root{
+  --md-primary:#00766A; --md-on-primary:#fff;
+  --md-primary-container:#9CF2E5; --md-on-primary-container:#00201D;
+  --md-secondary:#4B635F; --md-on-secondary:#fff;
+  --md-secondary-container:#CDE8E3; --md-on-secondary-container:#07201D;
+  --md-error:#BA1A1A; --md-error-container:#FFDAD6; --md-on-error-container:#410002;
+  --md-bg:#F4FBFA; --md-on-bg:#161D1C;
+  --md-surface:#F4FBFA; --md-on-surface:#161D1C;
+  --md-surface-variant:#DAE5E2; --md-on-surface-variant:#3F4947;
+  --md-surface-low:#EEF6F4; --md-surface-container:#E8F2F0;
+  --md-surface-high:#E2ECEB; --md-surface-highest:#DCE7E5;
+  --md-outline:#6F7977; --md-outline-variant:#BEC9C7;
+  --el1:0 1px 2px rgba(0,0,0,.1),0 1px 3px 1px rgba(0,0,0,.07);
+  --el2:0 1px 2px rgba(0,0,0,.1),0 2px 6px 2px rgba(0,0,0,.07);
+  --el3:0 4px 8px 3px rgba(0,0,0,.09),0 1px 3px rgba(0,0,0,.1);
+  --r-xs:4px;--r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:28px;--r-full:9999px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font:400 14px/20px 'Roboto',sans-serif;background:var(--md-bg);color:var(--md-on-bg);display:flex;flex-direction:column;}
+.icon{font-family:'Material Symbols Rounded';font-size:20px;line-height:1;user-select:none;flex-shrink:0;vertical-align:middle;}
+.icon-sm{font-size:18px}.icon-lg{font-size:24px}.icon-xl{font-size:36px}
 
+/* ── Top App Bar ── */
+.top-bar{display:flex;align-items:center;gap:6px;padding:0 12px 0 16px;height:64px;
+  background:var(--md-surface-low);border-bottom:1px solid var(--md-outline-variant);flex-shrink:0;z-index:20;}
+.bar-icon{width:40px;height:40px;border-radius:var(--r-md);background:var(--md-primary-container);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:4px;}
+.bar-titles{flex:1;min-width:0;}
+.bar-headline{font:500 18px/24px 'Google Sans',sans-serif;color:var(--md-on-surface);}
+.bar-sub{font:400 11px/16px 'Roboto',sans-serif;color:var(--md-on-surface-variant);letter-spacing:.3px;}
+.divider-v{width:1px;height:28px;background:var(--md-outline-variant);margin:0 4px;flex-shrink:0;}
+.chip-row{display:flex;gap:6px;align-items:center;overflow:hidden;}
+.chip{display:flex;align-items:center;gap:5px;height:30px;padding:0 10px;
+  border:1px solid var(--md-outline-variant);border-radius:var(--r-full);
+  background:transparent;color:var(--md-on-surface-variant);
+  font:500 11px/16px 'Roboto',sans-serif;white-space:nowrap;user-select:none;}
+.chip.on{background:var(--md-secondary-container);color:var(--md-on-secondary-container);border-color:transparent;}
+
+/* ── Layout ── */
+.layout{display:grid;grid-template-columns:356px 1fr;flex:1;overflow:hidden;}
+
+/* ── Side Panel ── */
+.side{background:var(--md-surface-low);border-right:1px solid var(--md-outline-variant);overflow-y:auto;display:flex;flex-direction:column;}
+.side::-webkit-scrollbar{width:4px;}
+.side::-webkit-scrollbar-thumb{background:var(--md-outline-variant);border-radius:2px;}
+.sec{padding:16px;border-bottom:1px solid var(--md-outline-variant);}
+.sec:last-child{border-bottom:none;}
+.sec-head{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.sec-title{font:500 13px/18px 'Google Sans',sans-serif;color:var(--md-primary);letter-spacing:.1px;}
+
+/* M3 Filled Text Field */
+.mf{position:relative;width:100%;margin-bottom:10px;}
+.mf:last-child{margin-bottom:0;}
+.mf input,.mf select,.mf textarea{
+  width:100%;background:var(--md-surface-highest);border:none;
+  border-bottom:1px solid var(--md-on-surface-variant);
+  border-radius:var(--r-xs) var(--r-xs) 0 0;
+  font:400 15px/24px 'Roboto',sans-serif;color:var(--md-on-surface);
+  outline:none;-webkit-appearance:none;transition:border-bottom .15s;
+}
+.mf input,.mf select{height:52px;padding:22px 14px 6px;}
+.mf textarea{padding:28px 14px 10px;min-height:90px;resize:vertical;}
+.mf input:focus,.mf select:focus,.mf textarea:focus{border-bottom:2px solid var(--md-primary);}
+.mf label{position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  font:400 15px/24px 'Roboto',sans-serif;color:var(--md-on-surface-variant);
+  pointer-events:none;transform-origin:left top;transition:all .15s;}
+.mf textarea~label{top:16px;transform:none;}
+.mf input:focus+label,.mf input:not(:placeholder-shown)+label,.mf.filled label,
+.mf textarea:focus+label,.mf textarea:not(:placeholder-shown)+label{
+  top:10px;transform:translateY(0) scale(.73);color:var(--md-primary);font-weight:500;}
+.mf textarea:focus+label,.mf textarea:not(:placeholder-shown)+label{top:10px;transform:scale(.73);}
+.mf select+label{top:10px;transform:scale(.73);color:var(--md-primary);font-weight:500;}
+.mf select option{background:var(--md-surface-low);}
+.mf .hint{font:400 11px/16px 'Roboto',sans-serif;color:var(--md-on-surface-variant);padding:3px 14px 0;}
+.mf .trail{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--md-on-surface-variant);pointer-events:none;}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+/* Slider */
+.sl{margin-bottom:12px;}
+.sl:last-child{margin-bottom:0;}
+.sl-top{display:flex;justify-content:space-between;align-items:center;
+  font:500 11px/16px 'Roboto',sans-serif;color:var(--md-on-surface-variant);
+  letter-spacing:.5px;text-transform:uppercase;margin-bottom:7px;}
+.sl-top .v{font:500 12px/16px 'Google Sans Mono',monospace;color:var(--md-on-primary-container);
+  background:var(--md-primary-container);padding:1px 9px;border-radius:var(--r-full);letter-spacing:0;text-transform:none;}
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;
+  background:var(--md-surface-highest);border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;
+  background:var(--md-primary);border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.22);transition:transform .1s;}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15);}
+
+/* Color pick */
+.cp{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.cf{background:var(--md-surface-highest);border-radius:var(--r-xs) var(--r-xs) 0 0;
+  border-bottom:1px solid var(--md-on-surface-variant);padding:10px 12px 8px;
+  display:flex;flex-direction:column;gap:5px;cursor:pointer;transition:border-bottom .15s;}
+.cf:focus-within{border-bottom:2px solid var(--md-primary);}
+.cf label{font:500 11px/14px 'Roboto',sans-serif;color:var(--md-primary);letter-spacing:.4px;text-transform:uppercase;}
+.cf-row{display:flex;align-items:center;gap:8px;}
+.cf input[type=color]{width:26px;height:26px;border:2px solid var(--md-outline-variant);
+  border-radius:var(--r-sm);background:none;padding:0;cursor:pointer;}
+.cf span{font:400 13px/20px 'Google Sans Mono',monospace;color:var(--md-on-surface);}
+
+/* M3 Switch */
+.sw-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--md-outline-variant);}
+.sw-row:last-child{border-bottom:none;}
+.sw-label{font:400 14px/20px 'Roboto',sans-serif;color:var(--md-on-surface);}
+.m3sw{position:relative;width:52px;height:32px;flex-shrink:0;}
+.m3sw input{opacity:0;width:0;height:0;position:absolute;}
+.sw-track{position:absolute;inset:0;background:var(--md-surface-variant);border:2px solid var(--md-outline);border-radius:var(--r-full);cursor:pointer;transition:all .2s;}
+.sw-thumb{position:absolute;width:16px;height:16px;background:var(--md-outline);border-radius:50%;top:50%;left:6px;transform:translateY(-50%);transition:all .2s;pointer-events:none;}
+.m3sw input:checked~.sw-track{background:var(--md-primary);border-color:var(--md-primary);}
+.m3sw input:checked~.sw-thumb{background:#fff;width:24px;height:24px;transform:translateY(-50%) translateX(20px);}
+
+/* Error correction chips */
+.ec-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px;}
+.ec-chip{height:40px;border:1px solid var(--md-outline-variant);border-radius:var(--r-sm);
+  background:transparent;font:500 13px/18px 'Roboto',sans-serif;color:var(--md-on-surface-variant);
+  cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;transition:all .15s;}
+.ec-chip .ec-l{font:700 15px/18px 'Google Sans',sans-serif;}
+.ec-chip .ec-s{font:400 9px/12px 'Roboto',sans-serif;opacity:.7;}
+.ec-chip.on{background:var(--md-primary-container);color:var(--md-on-primary-container);border-color:transparent;}
+.ec-chip:not(.on):hover{background:rgba(0,118,106,.06);}
+
+/* Stats */
+.stat-row{display:flex;gap:6px;margin-bottom:4px;}
+.stat-card{flex:1;background:var(--md-primary-container);border-radius:var(--r-md);padding:8px;
+  display:flex;flex-direction:column;align-items:center;gap:2px;}
+.stat-k{font:500 10px/14px 'Roboto',sans-serif;color:var(--md-on-primary-container);opacity:.75;letter-spacing:.5px;text-transform:uppercase;}
+.stat-v{font:500 17px/22px 'Google Sans',sans-serif;color:var(--md-on-primary-container);}
+
+/* Segmented */
+.seg{display:flex;border:1px solid var(--md-outline);border-radius:var(--r-full);overflow:hidden;margin-bottom:10px;}
+.seg-btn{flex:1;height:36px;background:none;border:none;border-right:1px solid var(--md-outline);
+  font:500 12px/20px 'Roboto',sans-serif;color:var(--md-on-surface-variant);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;transition:all .15s;}
+.seg-btn:last-child{border-right:none;}
+.seg-btn.on{background:var(--md-secondary-container);color:var(--md-on-secondary-container);}
+.seg-btn:not(.on):hover{background:rgba(0,118,106,.06);color:var(--md-on-surface);}
+
+/* Banner */
+.banner{display:flex;align-items:flex-start;gap:8px;border-radius:var(--r-md);
+  font:400 12px/16px 'Roboto',sans-serif;opacity:0;max-height:0;overflow:hidden;
+  transition:opacity .2s,max-height .25s,padding .2s,margin .2s;}
+.banner.show{opacity:1;max-height:80px;padding:10px 12px;margin-bottom:10px;}
+.banner.err{background:var(--md-error-container);color:var(--md-on-error-container);}
+
+/* Buttons */
+.btn-filled{display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;height:40px;background:var(--md-primary);color:#fff;border:none;
+  border-radius:var(--r-full);font:500 14px/20px 'Roboto',sans-serif;cursor:pointer;
+  box-shadow:var(--el1);position:relative;overflow:hidden;transition:box-shadow .2s,transform .1s;}
+.btn-filled::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0);transition:background .15s;}
+.btn-filled:hover{box-shadow:var(--el2);}
+.btn-filled:hover::after{background:rgba(255,255,255,.08);}
+.btn-filled:active{transform:scale(.99);}
+.btn-tonal{display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;height:40px;background:var(--md-secondary-container);color:var(--md-on-secondary-container);
+  border:none;border-radius:var(--r-full);font:500 14px/20px 'Roboto',sans-serif;
+  cursor:pointer;transition:box-shadow .2s;}
+.btn-tonal:hover{box-shadow:var(--el1);}
+.btn-tonal:disabled{background:rgba(22,29,28,.12);color:rgba(22,29,28,.38);cursor:not-allowed;box-shadow:none;}
+.btn-outlined{display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;height:40px;background:transparent;color:var(--md-primary);
+  border:1px solid var(--md-outline);border-radius:var(--r-full);
+  font:500 14px/20px 'Roboto',sans-serif;cursor:pointer;transition:background .15s;}
+.btn-outlined:hover{background:rgba(0,118,106,.08);}
+.btn-outlined:disabled{color:rgba(22,29,28,.38);border-color:rgba(22,29,28,.12);cursor:not-allowed;background:none;}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+
+/* ── Preview ── */
+.preview{display:flex;flex-direction:column;background:var(--md-surface-container);overflow:hidden;}
+.prev-bar{display:flex;align-items:center;gap:8px;padding:6px 14px;
+  background:var(--md-surface-low);border-bottom:1px solid var(--md-outline-variant);flex-shrink:0;}
+.prev-bar-title{font:500 14px/20px 'Google Sans',sans-serif;color:var(--md-on-surface);flex:1;}
+.page-badge{font:500 12px/16px 'Roboto',sans-serif;color:var(--md-on-primary-container);
+  background:var(--md-primary-container);padding:3px 12px;border-radius:var(--r-full);white-space:nowrap;}
+.icon-btn{width:36px;height:36px;border:none;background:none;cursor:pointer;border-radius:var(--r-full);
+  display:flex;align-items:center;justify-content:center;color:var(--md-on-surface-variant);transition:background .15s;}
+.icon-btn:hover{background:rgba(0,118,106,.08);}
+.icon-btn:disabled{color:rgba(22,29,28,.28);cursor:not-allowed;}
+.zoom-lbl{font:400 12px/20px 'Google Sans Mono',monospace;color:var(--md-on-surface);min-width:40px;text-align:center;}
+
+.prev-scroll{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:28px 20px;
+  background:
+    radial-gradient(ellipse 60% 35% at 50% -5%,rgba(0,118,106,.07),transparent 60%),
+    repeating-linear-gradient(0deg,transparent,transparent 24px,rgba(0,0,0,.02) 24px,rgba(0,0,0,.02) 25px),
+    repeating-linear-gradient(90deg,transparent,transparent 24px,rgba(0,0,0,.02) 24px,rgba(0,0,0,.02) 25px);}
+.prev-scroll::-webkit-scrollbar{width:6px;height:6px;}
+.prev-scroll::-webkit-scrollbar-thumb{background:var(--md-outline-variant);border-radius:3px;}
+
+/* A4 Sheet */
+#a4{background:#fff;flex-shrink:0;transform-origin:top center;border-radius:2px;overflow:hidden;
+  box-shadow:0 1px 2px rgba(0,0,0,.08),0 8px 40px rgba(0,0,0,.15),0 32px 80px rgba(0,0,0,.09);position:relative;}
+#qr-grid{display:grid;width:100%;height:100%;}
+.qr-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+.qr-cell canvas{display:block;}
+.qr-label{font-family:'Roboto',sans-serif;text-align:center;line-height:1.3;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.qr-value{font-family:'Google Sans Mono',monospace;text-align:center;line-height:1.3;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
+  opacity:.72;letter-spacing:-.01em;}
+
+/* Empty state */
+.empty{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;}
+.empty-ic{width:80px;height:80px;border-radius:var(--r-full);
+  background:rgba(0,118,106,.08);display:flex;align-items:center;justify-content:center;}
+.empty-t{font:400 22px/28px 'Google Sans',sans-serif;color:rgba(0,0,0,.2);}
+.empty-s{font:400 13px/20px 'Roboto',sans-serif;color:rgba(0,0,0,.15);}
+
+/* Progress Dialog */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.32);display:none;align-items:center;justify-content:center;z-index:300;}
+.scrim.show{display:flex;}
+.dialog{background:var(--md-surface-highest);border-radius:var(--r-xl);padding:24px;width:300px;
+  display:flex;flex-direction:column;gap:14px;box-shadow:var(--el3);}
+.dlg-title{font:400 22px/28px 'Google Sans',sans-serif;color:var(--md-on-surface);}
+.dlg-body{font:400 14px/20px 'Roboto',sans-serif;color:var(--md-on-surface-variant);}
+.m3-prog{height:4px;background:var(--md-surface-variant);border-radius:2px;overflow:hidden;}
+.m3-prog-fill{height:100%;background:var(--md-primary);border-radius:2px;width:0%;transition:width .12s;}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.sec{animation:fadeUp .22s ease both;}
+.sec:nth-child(1){animation-delay:.04s}.sec:nth-child(2){animation-delay:.08s}
+.sec:nth-child(3){animation-delay:.12s}.sec:nth-child(4){animation-delay:.16s}
+.sec:nth-child(5){animation-delay:.20s}.sec:nth-child(6){animation-delay:.24s}
+.sec:nth-child(7){animation-delay:.28s}
+@keyframes qrPop{0%{opacity:0;transform:scale(.82)}70%{transform:scale(1.04)}100%{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<!-- TOP APP BAR -->
+<div class="top-bar">
+  <div class="bar-icon">
+    <span class="icon icon-lg" style="color:var(--md-primary)">qr_code_2</span>
+  </div>
+  <div class="bar-titles">
+    <div class="bar-headline">QR Sheet Generator</div>
+    <div class="bar-sub">A4 · Zero Margins · High-Resolution Export</div>
+  </div>
+  <div class="divider-v"></div>
+  <div class="chip-row">
+    <div class="chip on"><span class="icon icon-sm">article</span>A4</div>
+    <div class="chip on"><span class="icon icon-sm">border_clear</span>No Margins</div>
+    <div class="chip"><span class="icon icon-sm">high_quality</span>288 DPI</div>
+    <div class="chip"><span class="icon icon-sm">grid_on</span>Grid Layout</div>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- SIDE PANEL -->
+  <aside class="side">
+
+    <!-- QR Content -->
+    <div class="sec">
+      <div class="sec-head">
+        <span class="icon" style="color:var(--md-primary)">edit</span>
+        <span class="sec-title">QR Content</span>
+      </div>
+      <div class="mf filled">
+        <textarea id="qrText" placeholder=" ">100 KNK-BS-001</textarea>
+        <label>Text / URL / Data</label>
+        <div class="hint">URL, plain text, vCard, WiFi config, email …</div>
+      </div>
+      <div class="mf filled">
+        <input type="text" id="labelText" placeholder=" " value=""/>
+        <label>Label under each QR (optional)</label>
+      </div>
+    </div>
+
+    <!-- Error Correction -->
+    <div class="sec">
+      <div class="sec-head">
+        <span class="icon" style="color:var(--md-primary)">shield</span>
+        <span class="sec-title">Error Correction Level</span>
+      </div>
+      <div class="ec-row">
+        <button class="ec-chip on" data-ec="L" onclick="setEC(this)">
+          <span class="ec-l">L</span><span class="ec-s">7%</span>
+        </button>
+        <button class="ec-chip" data-ec="M" onclick="setEC(this)">
+          <span class="ec-l">M</span><span class="ec-s">15%</span>
+        </button>
+        <button class="ec-chip" data-ec="Q" onclick="setEC(this)">
+          <span class="ec-l">Q</span><span class="ec-s">25%</span>
+        </button>
+        <button class="ec-chip" data-ec="H" onclick="setEC(this)">
+          <span class="ec-l">H</span><span class="ec-s">30%</span>
+        </button>
+      </div>
+      <div style="font:400 11px/16px 'Roboto',sans-serif;color:var(--md-on-surface-variant)">
+        Higher correction = more resilient to damage but denser QR code
+      </div>
+    </div>
+
+    <!-- Grid Layout -->
+    <div class="sec">
+      <div class="sec-head">
+        <span class="icon" style="color:var(--md-primary)">grid_on</span>
+        <span class="sec-title">A4 Grid Layout</span>
+      </div>
+      <div class="r2">
+        <div class="mf filled">
+          <input type="number" id="cols" value="10" min="1" max="20" placeholder=" "/>
+          <label>Columns</label>
+        </div>
+        <div class="mf filled">
+          <input type="number" id="rows" value="15" min="1" max="30" placeholder=" "/>
+          <label>Rows</label>
+        </div>
+      </div>
+      <div class="sw-row">
+        <span class="sw-label">Cell border lines</span>
+        <label class="m3sw"><input type="checkbox" id="togBorder" onchange="liveRebuild()"/>
+          <div class="sw-track"></div><div class="sw-thumb"></div></label>
+      </div>
+      <div class="sw-row">
+        <span class="sw-label">Show label text</span>
+        <label class="m3sw"><input type="checkbox" id="togLabel" checked onchange="liveRebuild()"/>
+          <div class="sw-track"></div><div class="sw-thumb"></div></label>
+      </div>
+      <div class="sw-row">
+        <span class="sw-label">Show QR value text</span>
+        <label class="m3sw"><input type="checkbox" id="togValue" checked onchange="liveRebuild()"/>
+          <div class="sw-track"></div><div class="sw-thumb"></div></label>
+      </div>
+      <div class="sw-row">
+        <span class="sw-label">Rounded QR modules</span>
+        <label class="m3sw"><input type="checkbox" id="togRound" onchange="liveRebuild()"/>
+          <div class="sw-track"></div><div class="sw-thumb"></div></label>
+      </div>
+    </div>
+
+    <!-- Appearance -->
+    <div class="sec">
+      <div class="sec-head">
+        <span class="icon" style="color:var(--md-primary)">palette</span>
+        <span class="sec-title">Appearance</span>
+      </div>
+      <div class="cp">
+        <div class="cf">
+          <label>QR Color</label>
+          <div class="cf-row">
+            <input type="color" id="fgColor" value="#000000" oninput="onColor(this,'fgHex')"/>
+            <span id="fgHex">#000000</span>
+          </div>
+        </div>
+        <div class="cf">
+          <label>Background</label>
+          <div class="cf-row">
+            <input type="color" id="bgColor" value="#ffffff" oninput="onColor(this,'bgHex')"/>
+            <span id="bgHex">#ffffff</span>
+          </div>
+        </div>
+      </div>
+      <div class="sl">
+        <div class="sl-top">Cell Padding % <span class="v" id="cpV">8%</span></div>
+        <input type="range" id="cellPad" min="0" max="25" step="1" value="8" oninput="onSlide(this,'cpV','%')"/>
+      </div>
+      <div class="sl">
+        <div class="sl-top">QR Quiet Zone <span class="v" id="qzV">2</span></div>
+        <input type="range" id="quietZone" min="0" max="8" step="1" value="2" oninput="onSlide(this,'qzV')"/>
+      </div>
+      <div class="sl">
+        <div class="sl-top">Label Font Size <span class="v" id="lfV">11 pt</span></div>
+        <input type="range" id="labelSize" min="6" max="24" step="1" value="11" oninput="onSlide(this,'lfV',' pt')"/>
+      </div>
+      <div class="sl">
+        <div class="sl-top">Value Font Size <span class="v" id="vfV">8 pt</span></div>
+        <input type="range" id="valueSize" min="5" max="18" step="1" value="8" oninput="onSlide(this,'vfV',' pt')"/>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="sec">
+      <div class="sec-head">
+        <span class="icon" style="color:var(--md-primary)">info</span>
+        <span class="sec-title">Summary</span>
+      </div>
+      <div class="stat-row">
+        <div class="stat-card"><span class="stat-k">QR Codes</span><span class="stat-v" id="sTot">—</span></div>
+        <div class="stat-card"><span class="stat-k">Cols</span><span class="stat-v" id="sCols">—</span></div>
+        <div class="stat-card"><span class="stat-k">Rows</span><span class="stat-v" id="sRows">—</span></div>
+      </div>
+      <div class="banner err" id="errBanner">
+        <span class="icon icon-sm" style="flex-shrink:0;margin-top:1px">error</span>
+        <span id="errText"></span>
+      </div>
+    </div>
+
+    <!-- Export -->
+    <div class="sec">
+      <div class="sec-head">
+        <span class="icon" style="color:var(--md-primary)">save_alt</span>
+        <span class="sec-title">Export</span>
+      </div>
+      <div class="seg">
+        <button class="seg-btn" onclick="setFmt(this,'png')"><span class="icon icon-sm">image</span>PNG</button>
+        <button class="seg-btn on" onclick="setFmt(this,'jpg')"><span class="icon icon-sm">photo</span>JPG</button>
+        <button class="seg-btn" onclick="setFmt(this,'svg')"><span class="icon icon-sm">polyline</span>SVG</button>
+      </div>
+      <button class="btn-filled" onclick="build()" style="margin-bottom:8px">
+        <span class="icon">qr_code_2</span>Generate QR Sheet
+      </button>
+      <div class="btn-row">
+        <button class="btn-tonal" id="saveBtn" onclick="saveSheet()" disabled>
+          <span class="icon icon-sm">download</span>Save A4
+        </button>
+        <button class="btn-outlined" id="singleBtn" onclick="saveSingle()" disabled>
+          <span class="icon icon-sm">crop_square</span>Single QR
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- PREVIEW -->
+  <div class="preview">
+    <div class="prev-bar">
+      <span class="icon" style="color:var(--md-on-surface-variant)">article</span>
+      <span class="prev-bar-title">A4 Preview</span>
+      <span class="page-badge" id="pgBadge">Not generated</span>
+      <div style="display:flex;align-items:center;gap:2px;margin-left:8px">
+        <button class="icon-btn" onclick="chgZoom(-10)" title="Zoom out"><span class="icon icon-sm">zoom_out</span></button>
+        <span class="zoom-lbl" id="zoomLbl">55%</span>
+        <button class="icon-btn" onclick="chgZoom(10)" title="Zoom in"><span class="icon icon-sm">zoom_in</span></button>
+        <button class="icon-btn" onclick="setZoom(100)" title="Actual size"><span class="icon icon-sm">crop_free</span></button>
+        <button class="icon-btn" onclick="fitZoom()" title="Fit to window"><span class="icon icon-sm">fit_screen</span></button>
+      </div>
+    </div>
+    <div class="prev-scroll" id="pscroll">
+      <div id="a4" style="position:relative">
+        <div id="qr-grid">
+          <div class="empty" id="emptyState">
+            <div class="empty-ic"><span class="icon icon-xl" style="color:rgba(0,118,106,.35)">qr_code_2</span></div>
+            <div class="empty-t">No QR sheet yet</div>
+            <div class="empty-s">Enter text and tap Generate QR Sheet</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Progress Dialog -->
+<div class="scrim" id="scrim">
+  <div class="dialog">
+    <div class="dlg-title">Exporting…</div>
+    <div class="dlg-body" id="progSub">Rendering high-resolution canvas</div>
+    <div class="m3-prog"><div class="m3-prog-fill" id="progFill"></div></div>
+  </div>
+</div>
+
+<script>
+/* ─────────────────────────────────────────
+   QR CORE — draws QR modules to a canvas
+   Uses qrcode-generator (qrcode() global)
+   No external dependency for rendering.
+───────────────────────────────────────── */
+
+/**
+ * Build a QR canvas from scratch.
+ * @param {string} text      Content to encode
+ * @param {number} size      Output canvas pixel size (includes quiet zone)
+ * @param {string} fg        Foreground hex color
+ * @param {string} bg        Background hex color
+ * @param {string} ecLevel   'L' | 'M' | 'Q' | 'H'
+ * @param {number} quietZone Extra quiet-zone modules (0–8)
+ * @param {boolean} rounded  Draw rounded modules
+ * @returns {{ canvas: HTMLCanvasElement, ok: boolean, err?: string }}
+ */
+function makeQR(text, size, fg, bg, ecLevel, quietZone, rounded) {
+  try {
+    // typeNumber 0 = auto-detect
+    const qr = qrcode(0, ecLevel);
+    qr.addData(text);
+    qr.make();
+
+    const mc = qr.getModuleCount();
+    const totalModules = mc + quietZone * 2;
+    const moduleSize = size / totalModules;
+
+    const canvas = document.createElement('canvas');
+    canvas.width  = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    // Background
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, size, size);
+
+    // Modules
+    ctx.fillStyle = fg;
+    for (let row = 0; row < mc; row++) {
+      for (let col = 0; col < mc; col++) {
+        if (!qr.isDark(row, col)) continue;
+        const x = (col + quietZone) * moduleSize;
+        const y = (row + quietZone) * moduleSize;
+        if (rounded) {
+          const r = moduleSize * 0.32;
+          drawRoundRect(ctx, x, y, moduleSize, moduleSize, r);
+        } else {
+          // Slightly grow each module to eliminate sub-pixel gaps
+          ctx.fillRect(x - 0.3, y - 0.3, moduleSize + 0.6, moduleSize + 0.6);
+        }
+      }
+    }
+    return { canvas, ok: true };
+  } catch (e) {
+    return { canvas: null, ok: false, err: e.message };
+  }
+}
+
+function drawRoundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+  ctx.fill();
+}
+
+/* ─── App state ─── */
+const G = { fmt: 'png', zoom: 55, ec: 'L', generated: false };
+
+/* ─── A4 dims ─── */
+const A4W = 794, A4H = 1123, XSCALE = 3;
+
+/* ─── Zoom ─── */
+function applyZoom() {
+  const sh = document.getElementById('a4');
+  sh.style.width  = A4W + 'px';
+  sh.style.height = A4H + 'px';
+  sh.style.transform = `scale(${G.zoom / 100})`;
+  sh.style.transformOrigin = 'top center';
+  document.getElementById('pscroll').style.minHeight = (A4H * G.zoom / 100 + 60) + 'px';
+}
+function chgZoom(d) { setZoom(G.zoom + d); }
+function setZoom(v) {
+  G.zoom = Math.min(150, Math.max(15, v));
+  document.getElementById('zoomLbl').textContent = G.zoom + '%';
+  applyZoom();
+}
+function fitZoom() {
+  const available = document.getElementById('pscroll').clientHeight - 56;
+  setZoom(Math.max(15, Math.floor(available / A4H * 100)));
+}
+
+/* ─── Reactive helpers ─── */
+function liveRebuild() { if (G.generated) build(); }
+function onColor(inp, hexId) { document.getElementById(hexId).textContent = inp.value; liveRebuild(); }
+function onSlide(inp, vid, sfx = '') { document.getElementById(vid).textContent = inp.value + sfx; liveRebuild(); }
+
+['qrText','labelText','cols','rows'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { if (G.generated) build(); });
+  el.addEventListener('keydown', e => { if (e.key === 'Enter' && el.tagName !== 'TEXTAREA') build(); });
+});
+
+/* ─── Selectors ─── */
+function setFmt(btn, f) {
+  document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on'); G.fmt = f;
+}
+function setEC(btn) {
+  document.querySelectorAll('.ec-chip').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  G.ec = btn.dataset.ec;
+  liveRebuild();
+}
+
+/* ─── Banner ─── */
+function showBanner(msg) {
+  const b = document.getElementById('errBanner');
+  document.getElementById('errText').textContent = msg;
+  b.className = 'banner err' + (msg ? ' show' : '');
+}
+
+/* ─── BUILD preview ─── */
+function build() {
+  showBanner('');
+  const text        = document.getElementById('qrText').value.trim();
+  const labelTxt    = document.getElementById('labelText').value.trim();
+  const cols        = Math.max(1, +document.getElementById('cols').value || 4);
+  const rows        = Math.max(1, +document.getElementById('rows').value || 5);
+  const fg          = document.getElementById('fgColor').value;
+  const bg          = document.getElementById('bgColor').value;
+  const quietZone   = +document.getElementById('quietZone').value;
+  const cellPadPct  = +document.getElementById('cellPad').value / 100;
+  const labelSz     = +document.getElementById('labelSize').value;
+  const valueSz     = +document.getElementById('valueSize').value;
+  const showLabel   = document.getElementById('togLabel').checked;
+  const showValue   = document.getElementById('togValue').checked;
+  const border      = document.getElementById('togBorder').checked;
+  const rounded     = document.getElementById('togRound').checked;
+
+  if (!text) { showBanner('Please enter some text or URL to encode.'); return; }
+
+  // Truncate value for display (max 42 chars with ellipsis)
+  const displayValue = text.length > 42 ? text.slice(0, 40) + '…' : text;
+
+  const total  = cols * rows;
+  const cellW  = A4W / cols;
+  const cellH  = A4H / rows;
+  const padX   = Math.floor(cellW * cellPadPct);
+  const padY   = Math.floor(cellH * cellPadPct);
+  const lblRes   = (showLabel && labelTxt) ? (labelSz * 1.5 + 4) : 0;
+  const valueRes = showValue ? (valueSz * 1.5 + 4) : 0;
+  const qrSize = Math.max(32, Math.floor(Math.min(cellW - padX * 2, cellH - padY * 2 - lblRes - valueRes)));
+
+  const { canvas: qrCanvas, ok, err } = makeQR(text, qrSize, fg, bg, G.ec, quietZone, rounded);
+  if (!ok) { showBanner('QR generation failed: ' + err); return; }
+
+  // Update stats
+  document.getElementById('sTot').textContent  = total;
+  document.getElementById('sCols').textContent = cols;
+  document.getElementById('sRows').textContent = rows;
+
+  // Build grid
+  const grid = document.getElementById('qr-grid');
+  grid.innerHTML = '';
+  grid.style.gridTemplateColumns = `repeat(${cols},1fr)`;
+  grid.style.gridTemplateRows    = `repeat(${rows},1fr)`;
+
+  const hasBottom = (showLabel && labelTxt) || showValue;
+
+  for (let i = 0; i < total; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'qr-cell';
+    cell.style.cssText = `background:${bg};border:${border ? '0.5px solid #ccc' : 'none'};` +
+      `padding:${padY}px ${padX}px;gap:${hasBottom ? '3px' : '0'};` +
+      `animation:qrPop .28s ease ${i * 10}ms both`;
+
+    // Clone QR canvas
+    const c = document.createElement('canvas');
+    c.width = c.height = qrCanvas.width;
+    c.style.cssText = `display:block;max-width:100%;max-height:${qrSize}px;object-fit:contain;` +
+      (rounded ? 'border-radius:8%;' : '');
+    c.getContext('2d').drawImage(qrCanvas, 0, 0);
+    cell.appendChild(c);
+
+    if (showLabel && labelTxt) {
+      const lbl = document.createElement('div');
+      lbl.className = 'qr-label';
+      lbl.textContent = labelTxt;
+      lbl.style.cssText = `font-size:${labelSz}px;color:${fg};` +
+        `max-width:${cellW - padX * 2}px;font-family:'Roboto',sans-serif;`;
+      cell.appendChild(lbl);
+    }
+
+    if (showValue) {
+      const val = document.createElement('div');
+      val.className = 'qr-value';
+      val.textContent = ("\u20B9" + displayValue.replace(" KNK-", " "));
+      val.title = text; // full text on hover
+      val.style.cssText = `font-size:${valueSz}px;color:${fg};font-weight:900;` +
+        `max-width:${cellW - padX * 2}px;`;
+      cell.appendChild(val);
+    }
+
+    grid.appendChild(cell);
+  }
+
+  document.getElementById('emptyState')?.remove();
+  document.getElementById('a4').style.background = bg;
+  document.getElementById('pgBadge').textContent = `${cols} × ${rows} = ${total} QR codes`;
+  document.getElementById('saveBtn').disabled   = false;
+  document.getElementById('singleBtn').disabled = false;
+  G.generated = true;
+  applyZoom();
+}
+
+/* ─── High-res canvas for export ─── */
+async function renderHighRes() {
+  const text       = document.getElementById('qrText').value.trim();
+  const labelTxt   = document.getElementById('labelText').value.trim();
+  const cols       = Math.max(1, +document.getElementById('cols').value || 4);
+  const rows       = Math.max(1, +document.getElementById('rows').value || 5);
+  const fg         = document.getElementById('fgColor').value;
+  const bg         = document.getElementById('bgColor').value;
+  const quietZone  = +document.getElementById('quietZone').value;
+  const cellPadPct = +document.getElementById('cellPad').value / 100;
+  const labelSz    = +document.getElementById('labelSize').value;
+  const valueSz    = +document.getElementById('valueSize').value;
+  const showLabel  = document.getElementById('togLabel').checked;
+  const showValue  = document.getElementById('togValue').checked;
+  const border     = document.getElementById('togBorder').checked;
+  const rounded    = document.getElementById('togRound').checked;
+  const sc         = XSCALE;
+
+  // Truncate for canvas drawing (ellipsis won't render automatically)
+  const displayValue = text.length > 42 ? text.slice(0, 40) + '…' : text;
+
+  const cW = A4W * sc, cH = A4H * sc;
+  const cellW = cW / cols, cellH = cH / rows;
+  const padX  = Math.floor(cellW * cellPadPct);
+  const padY  = Math.floor(cellH * cellPadPct);
+  const lblRes   = (showLabel && labelTxt) ? (labelSz * sc * 1.5 + 4 * sc) : 0;
+  const valueRes = showValue ? (valueSz * sc * 1.5 + 4 * sc) : 0;
+  const qrSize = Math.max(64, Math.floor(Math.min(cellW - padX * 2, cellH - padY * 2 - lblRes - valueRes)));
+
+  const { canvas: qrC, ok, err } = makeQR(text, qrSize, fg, bg, G.ec, quietZone, rounded);
+  if (!ok) throw new Error(err);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = cW; canvas.height = cH;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, cW, cH);
+
+  const total = cols * rows;
+  for (let i = 0; i < total; i++) {
+    prog(true, `Rendering QR ${i + 1} / ${total}`, Math.round(i / total * 88));
+    const cx = (i % cols) * cellW;
+    const cy = Math.floor(i / cols) * cellH;
+
+    // Cell bg
+    ctx.fillStyle = bg;
+    ctx.fillRect(cx, cy, cellW, cellH);
+
+    // Border
+    if (border) {
+      ctx.strokeStyle = '#cccccc';
+      ctx.lineWidth = sc * 0.5;
+      ctx.strokeRect(cx, cy, cellW, cellH);
+    }
+
+    // Total content height for vertical centering
+    const dw = qrC.width, dh = qrC.height;
+    const contentH = dh + lblRes + valueRes;
+    const startX = cx + (cellW - dw) / 2;
+    const startY = cy + (cellH - contentH) / 2;
+
+    // Draw QR
+    ctx.drawImage(qrC, startX, startY);
+
+    let textY = startY + dh + 3 * sc;
+
+    // Label (custom text)
+    if (showLabel && labelTxt) {
+      ctx.fillStyle = fg;
+      ctx.font = `400 ${labelSz * sc * 0.75}px Roboto, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.globalAlpha = 1;
+      ctx.fillText(labelTxt, cx + cellW / 2, textY, cellW - padX * 2);
+      textY += lblRes;
+    }
+
+    // Value text (QR encoded content)
+    if (showValue) {
+      ctx.fillStyle = fg;
+      ctx.font = `400 ${valueSz * sc * 0.75}px 'Courier New', monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.globalAlpha = 0.72;
+      ctx.fillText(displayValue, cx + cellW / 2, textY, cellW - padX * 2);
+      ctx.globalAlpha = 1;
+    }
+
+    // Yield to avoid blocking
+    if (i % 5 === 4) await new Promise(r => setTimeout(r, 0));
+  }
+  return canvas;
+}
+
+/* ─── Save sheet ─── */
+async function saveSheet() {
+  const fmt  = G.fmt;
+  const slug = (document.getElementById('qrText').value.trim()).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,20) || 'qr';
+  if (fmt === 'svg') { exportSVG('qr_sheet_' + slug); return; }
+
+  prog(true, 'Preparing canvas…', 0);
+  try {
+    const canvas = await renderHighRes();
+    prog(true, 'Encoding…', 96);
+    await new Promise(r => setTimeout(r, 40));
+    canvas.toBlob(blob => {
+      prog(false);
+      dl(URL.createObjectURL(blob), `qr_sheet_${slug}.${fmt}`);
+    }, fmt === 'jpg' ? 'image/jpeg' : 'image/png', 0.96);
+  } catch (e) { prog(false); showBanner('Export failed: ' + e.message); }
+}
+
+/* ─── Save single QR ─── */
+function saveSingle() {
+  const text    = document.getElementById('qrText').value.trim();
+  const fg      = document.getElementById('fgColor').value;
+  const bg      = document.getElementById('bgColor').value;
+  const qz      = +document.getElementById('quietZone').value;
+  const rounded = document.getElementById('togRound').checked;
+  const slug    = text.replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,20) || 'qr';
+  const fmt     = G.fmt === 'svg' ? 'png' : G.fmt;
+
+  const { canvas, ok, err } = makeQR(text, 512, fg, bg, G.ec, qz, rounded);
+  if (!ok) { showBanner('QR failed: ' + err); return; }
+  canvas.toBlob(blob => dl(URL.createObjectURL(blob), `qr_single_${slug}.${fmt}`),
+    fmt === 'jpg' ? 'image/jpeg' : 'image/png', 0.96);
+}
+
+/* ─── SVG export ─── */
+function exportSVG(name) {
+  const text       = document.getElementById('qrText').value.trim();
+  const labelTxt   = document.getElementById('labelText').value.trim();
+  const cols       = Math.max(1, +document.getElementById('cols').value || 4);
+  const rows       = Math.max(1, +document.getElementById('rows').value || 5);
+  const fg         = document.getElementById('fgColor').value;
+  const bg         = document.getElementById('bgColor').value;
+  const qz         = +document.getElementById('quietZone').value;
+  const cellPadPct = +document.getElementById('cellPad').value / 100;
+  const labelSz    = +document.getElementById('labelSize').value;
+  const valueSz    = +document.getElementById('valueSize').value;
+  const showLabel  = document.getElementById('togLabel').checked;
+  const showValue  = document.getElementById('togValue').checked;
+  const border     = document.getElementById('togBorder').checked;
+  const rounded    = document.getElementById('togRound').checked;
+  const total      = cols * rows;
+
+  const displayValue = text.length > 42 ? text.slice(0, 40) + '…' : text;
+
+  const cellW = A4W / cols, cellH = A4H / rows;
+  const padX  = Math.floor(cellW * cellPadPct);
+  const padY  = Math.floor(cellH * cellPadPct);
+  const lblRes   = (showLabel && labelTxt) ? (labelSz * 1.5 + 4) : 0;
+  const valueRes = showValue ? (valueSz * 1.5 + 4) : 0;
+  const qrSize = Math.max(32, Math.floor(Math.min(cellW - padX * 2, cellH - padY * 2 - lblRes - valueRes)));
+
+  const { canvas: qrC, ok } = makeQR(text, qrSize, fg, bg, G.ec, qz, rounded);
+  if (!ok) { showBanner('SVG export failed.'); return; }
+
+  const dataURL = qrC.toDataURL('image/png');
+  let body = '';
+  for (let i = 0; i < total; i++) {
+    const cx = (i % cols) * cellW, cy = Math.floor(i / cols) * cellH;
+    const contentH = qrC.height + lblRes + valueRes;
+    const imgX = cx + (cellW - qrC.width) / 2;
+    const imgY = cy + (cellH - contentH) / 2;
+
+    body += `<rect x="${cx}" y="${cy}" width="${cellW}" height="${cellH}" fill="${bg}"${border ? ` stroke="#ccc" stroke-width="0.5"` : ''}/>`;
+    body += `<image href="${dataURL}" x="${imgX}" y="${imgY}" width="${qrC.width}" height="${qrC.height}"/>`;
+
+    let textY = imgY + qrC.height + 3;
+    if (showLabel && labelTxt) {
+      body += `<text x="${cx+cellW/2}" y="${textY + labelSz}" text-anchor="middle" font-family="Roboto,sans-serif" font-size="${labelSz}" fill="${fg}">${labelTxt}</text>`;
+      textY += lblRes;
+    }
+    if (showValue) {
+      body += `<text x="${cx+cellW/2}" y="${textY + valueSz}" text-anchor="middle" font-family="'Courier New',monospace" font-size="${valueSz}" fill="${fg}" opacity="0.72">${displayValue.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</text>`;
+    }
+  }
+  const out = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${A4W}" height="${A4H}" style="background:${bg}">${body}</svg>`;
+  dl(URL.createObjectURL(new Blob([out],{type:'image/svg+xml'})), name + '.svg');
+}
+
+/* ─── Helpers ─── */
+function prog(show, msg = '', pct = 0) {
+  document.getElementById('scrim').classList.toggle('show', show);
+  if (show) { document.getElementById('progSub').textContent = msg; document.getElementById('progFill').style.width = pct + '%'; }
+}
+function dl(href, name) {
+  const a = document.createElement('a'); a.href = href; a.download = name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(href), 2000);
+}
+
+/* ─── Init ─── */
+applyZoom();
+window.addEventListener('resize', () => { if (G.generated) applyZoom(); });
+
+// Wait for qrcode-generator lib to load, then auto-generate
+window.addEventListener('load', () => {
+  if (typeof qrcode === 'undefined') {
+    showBanner('QR library failed to load. Please check your internet connection.');
+    return;
+  }
+  setTimeout(build, 350);
+});
+</script>
+</body>
+</html>
