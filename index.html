@@ -775,7 +775,8 @@ async function renderHighRes() {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
       ctx.globalAlpha = 0.72;
-      ctx.fillText(displayValue, cx + cellW / 2, textY, cellW - padX * 2);
+      //ctx.fillText(displayValue, cx + cellW / 2, textY, cellW - padX * 2);
+      ctx.fillText("", cx + cellW / 2, textY, cellW - padX * 2);
       ctx.globalAlpha = 1;
     }
 
